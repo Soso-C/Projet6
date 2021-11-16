@@ -54,5 +54,40 @@ exports.getAllSauces = (req, res, next) => {
 
 
 exports.likeSauce = (req, res, next) => {
-  
+  const like = req.body.like
+  const userId = req.body.userId
+  Sauce.findOne({ _id: req.params.id })
+    .then(sauce => { // on créé un objet qui contient nos array (Usersliked et UsersDisliked) et les likes/dislikes de notre base de données.
+      const likeOrDislike = {
+        usersLiked: sauce.usersLiked,
+        usersDisliked: sauce.usersDisliked,
+        likes: sauce.likes,
+        dislikes: sauce.dislikes,
+      }
+      if(like === 1){ // Si = 1 alors on push l'id dans l'array UserLiked
+        likeOrDislike.usersLiked.push(userId);
+        console.log("Like ajouté")
+      }else if (like === -1) { // Si = -1 alors on push l'id dans l'array UserDisliked
+        likeOrDislike.usersDisliked.push(userId);
+        console.log("Dislike ajouté")
+      }else if (like === 0) { // Si = 0 alors on delete l'userid dans l'array disliked ou liked
+        // Si notre array UsersLiked contient notre userID alors on recupere son index et on le delete de l'array avec .splice
+        if (likeOrDislike.usersLiked.includes(userId)){         
+          const indexL = likeOrDislike.usersLiked.indexOf(userId);
+          likeOrDislike.usersLiked.splice(indexL, 1);         
+        }// Si notre array UsersDisliked contient notre userID alors on recupere son index et on le delete de l'array avec .splice
+        else if (likeOrDislike.usersDisliked.includes(userId)){
+          const indexD = likeOrDislike.usersDisliked.indexOf(userId);
+          likeOrDislike.usersDisliked.splice(indexD, 1);
+        }
+      }
+    // Affiche le nombre de like/dislike d'une sauce en fonction du nombre d'users dans les array usersliked ou usersdisliked
+    likeOrDislike.likes = likeOrDislike.usersLiked.length
+    likeOrDislike.dislikes = likeOrDislike.usersDisliked.length
+    // Update notre like ou dislike 
+    Sauce.updateOne({ _id: req.params.id }, likeOrDislike)
+    .then(() => res.status(200).json({ message: 'Votre avis a été pris en compte !' }))
+    .catch(error => res.status(400).json({ error }))
+  })   
 }
+
