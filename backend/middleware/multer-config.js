@@ -1,10 +1,12 @@
 const multer = require('multer');
 
+// On créé une sécurité d'extension pour l'upload d'images
 const MIME_TYPES = {
   'image/jpg': 'jpg',
   'image/jpeg': 'jpg',
   'image/png': 'png'
 };
+
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
