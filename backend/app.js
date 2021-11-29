@@ -4,16 +4,34 @@ const mongoose = require("mongoose");
 const path = require('path');
 const saucesRoutes = require("./routes/sauces");
 const userRoutes = require("./routes/user");
+const helmet = require('helmet');
+const rateLimit = require("express-rate-limit");
+require('dotenv').config()
+
+
+const app = express();
+
+// ratelimite secure
+
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: "Too many request from this IP"
+});
+
+app.use(limiter);
+
+// LOG de notre DB depuis notre fichier .env grace au package "dotenv"
+const DB_CONNECT = process.env.DATABASE
 
 
 // Request pour se connecter et faire des request a notre db
-mongoose.connect("mongodb+srv://p6usertest:p6userpwd@projet6piquante.pcqxq.mongodb.net/Projet6Piquante?retryWrites=true&w=majority",
+mongoose.connect(DB_CONNECT,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
-const app = express();
 
 // sécurisation des request avec cors. 
 app.use((req, res, next) => {
@@ -23,8 +41,12 @@ app.use((req, res, next) => {
     next();
 });
 
+// package
+app.use(helmet());
 app.use(bodyParser.json());
 
+
+// Main Routes
 app.use('/api/auth', userRoutes);
 app.use('/api/sauces', saucesRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));
