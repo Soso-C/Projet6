@@ -1,6 +1,9 @@
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 
+require('dotenv').config()
+const secretToken = process.env.SECRETTOKEN
+
 const User = require("../models/User");
 
 // Créer un user depuis notre schema User : on récupere le pwd de l'user qu'on salt et hash avec bcrypt on créé depuis le model et on met l'email et le new pwd hash et salt en tant que pwd pour la db
@@ -38,7 +41,7 @@ exports.signup = (req, res, next) => {
               userId: user._id,
               token: jwt.sign(
                 { userId: user._id },
-                'RANDOM_TOKEN_SECRET',
+                secretToken,
                 { expiresIn: '24h' }
               )
             });

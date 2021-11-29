@@ -6,7 +6,7 @@ const saucesRoutes = require("./routes/sauces");
 const userRoutes = require("./routes/user");
 const helmet = require('helmet');
 const rateLimit = require("express-rate-limit");
-require('dotenv').config()
+const dotenv = require('dotenv').config()
 
 
 const app = express();
@@ -16,7 +16,7 @@ const app = express();
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
-  message: "Too many request from this IP"
+  message: "Trop de requêtes envoyer depuis cette IP"
 });
 
 app.use(limiter);
